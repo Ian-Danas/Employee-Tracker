@@ -11,7 +11,7 @@ const db = mysql.createConnection(
       password: 'password',
       database: 'workplace_db'
     },
-    console.log(`Connected to the movies_db database.`)
+    console.log(`Connected to the workplace_db database.`)
   );
 
 
@@ -67,28 +67,103 @@ function viewEmployees(){
       });
 }
 function addEmployees(){
-    console.log('selected add an employee')
-    questionLoop()
+    let allRoles = []
+    db.query(`SELECT title FROM role;`, function (err, results) {
+       for (let i = 0; i < results.length; i++) {
+        const element = results[i];
+        allRoles.push(element.title)
+       }
+    })  
+    inquirer
+    .prompt([
+        {
+          type: "input",
+          message: "What is the employees first name?",
+          name: "firstName",
+        },
+        {
+          type: "input",
+          message: "What is the employees last name?",
+          name: "lastName",
+        },
+        {
+          type: "list",
+          message: "What is the employees role?",
+          name: "role",
+          choices: allRoles
+        },
+        {
+          type: "input",
+          message: "What is the employees manager",
+          name: "manager",
+        },
+    ])
+    .then((ans) => {
+        let roleNum = 0
+        db.query(`SELECT id FROM role WHERE title = ?;`,[ans.role], function (err, results){
+            roleNum = results[0].id
+            console.log(roleNum)
+            db.query(`INSERT INTO employee(first_name, last_name, role_id, manager_id) 
+            VALUES (?, ?, ?,?);`,[ans.firstName,ans.lastName,roleNum,ans.manager], function (err, results) {
+                if (err){
+                    console.log(err)
+                }
+            });
+            questionLoop()
+        })
+        })
 }
 function updateEmployee(){
     console.log('selected view update an employee role')
     questionLoop()
 }
 function viewRoles(){
-    console.log('selected view all roles')
+    db.query(`SELECT department.name AS department, role.title, role.salary
+    FROM role 
+    JOIN department 
+    ON role.department_id = department.id;;`, function (err, results) {
+    console.table(results);
     questionLoop()
+      });
 }
 function addRole(){
     console.log('selected to add a role')
     questionLoop()
 }
 function viewDepartments(){
-    console.log('selected view all departments')
+    db.query(`SELECT department.name AS Departments
+    FROM department;`, function (err, results) {
+    console.table(results);
     questionLoop()
+      });
 }
 function addDepartment(){
-    console.log('selected to add a department')
-    questionLoop()
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          message: "What is the name of the department",
+          name: "department",
+        },
+      ])
+      .then((ans) => {
+        db.query(
+          `INSERT INTO department (name) VALUES (?);`, [ans.department],function (err, results) {
+        });
+        questionLoop();
+      });
+}
+
+function getAllRoles(){
+    let allRoles = []
+    db.query(`SELECT title FROM role;`, function (err, results) {
+       for (let i = 0; i < results.length; i++) {
+        const element = results[i];
+        allRoles.push(element.title)
+        // console.log('inside the function',allRoles)
+       }
+    })  
+    return allRoles
 }
 
 questionLoop()
