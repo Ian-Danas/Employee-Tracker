@@ -66,6 +66,7 @@ function viewEmployees(){
     questionLoop()
       });
 }
+//TODO: add functionality for having manager names
 function addEmployees(){
     let allRoles = []
     db.query(`SELECT title FROM role;`, function (err, results) {
@@ -113,6 +114,7 @@ function addEmployees(){
         })
         })
 }
+//TODO: add functionality for updating an employee role
 function updateEmployee(){
     console.log('selected view update an employee role')
     questionLoop()
@@ -126,9 +128,47 @@ function viewRoles(){
     questionLoop()
       });
 }
+// functionality to addRoles
 function addRole(){
-    console.log('selected to add a role')
-    questionLoop()
+    let allDeps = []
+    db.query(`SELECT name FROM department;`, function (err, results) {
+       for (let i = 0; i < results.length; i++) {
+        const element = results[i];
+        allDeps.push(element.name)
+       }
+    })  
+    inquirer
+    .prompt([
+        {
+          type: "input",
+          message: "What is the name of the role?",
+          name: "name",
+        },
+        {
+          type: "input",
+          message: "What is the roles salary?",
+          name: "salary",
+        },
+        {
+          type: "list",
+          message: "What department does the role belong to",
+          name: "dep",
+          choices: allDeps
+        },
+    ])
+    .then((ans) => {
+        let depNum = 0
+        db.query(`SELECT id FROM department WHERE name = ?;`,[ans.dep], function (err, results){
+            depNum = results[0].id
+            db.query(`INSERT INTO role(title, salary,department_id) 
+                VALUES (?, ?,?);`,[ans.name,ans.salary,depNum], function (err, results) {
+                if (err){
+                    console.log(err)
+                }
+            });
+            questionLoop()
+        })
+        })
 }
 function viewDepartments(){
     db.query(`SELECT department.name AS Departments
@@ -152,18 +192,6 @@ function addDepartment(){
         });
         questionLoop();
       });
-}
-
-function getAllRoles(){
-    let allRoles = []
-    db.query(`SELECT title FROM role;`, function (err, results) {
-       for (let i = 0; i < results.length; i++) {
-        const element = results[i];
-        allRoles.push(element.title)
-        // console.log('inside the function',allRoles)
-       }
-    })  
-    return allRoles
 }
 
 questionLoop()

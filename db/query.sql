@@ -1,1 +1,1 @@
-SELECT * FROM employee
+SELECT name FROM department;
