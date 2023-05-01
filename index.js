@@ -56,28 +56,25 @@ function questionLoop() {
     }
 
 
-function viewEmployees(){
-    db.query(`SELECT employee.first_name, employee.last_name, employee.manager_id, role.title,role.salary,department.name
+async function viewEmployees(){
+    const [rows,fields] =  await db.promise().query(`SELECT employee.first_name, employee.last_name, employee.manager_id, role.title,role.salary,department.name AS Department
     FROM employee 
     JOIN role 
     ON employee.role_id = role.id
     JOIN department
-    ON role.department_id = department.id;`, function (err, results) {
-    console.table(results);
+    ON role.department_id = department.id;`)
+    console.table(rows);
     questionLoop()
-      });
 }
 //TODO: add functionality for having manager names
-function addEmployees(){
+async function addEmployees(){
     let allRoles = []
-    db.query(`SELECT title FROM role;`, function (err, results) {
-       for (let i = 0; i < results.length; i++) {
-        const element = results[i];
+    const [titles,Tfields] = await db.promise().query(`SELECT title FROM role;`)
+    for (let i = 0; i < titles.length; i++) {
+        const element = titles[i];
         allRoles.push(element.title)
        }
-    })  
-    inquirer
-    .prompt([
+    const ans = await inquirer.prompt([
         {
           type: "input",
           message: "What is the employees first name?",
@@ -100,46 +97,35 @@ function addEmployees(){
           name: "manager",
         },
     ])
-    .then((ans) => {
-        let roleNum = 0
-        db.query(`SELECT id FROM role WHERE title = ?;`,[ans.role], function (err, results){
-            roleNum = results[0].id
-            console.log(roleNum)
-            db.query(`INSERT INTO employee(first_name, last_name, role_id, manager_id) 
-            VALUES (?, ?, ?,?);`,[ans.firstName,ans.lastName,roleNum,ans.manager], function (err, results) {
-                if (err){
-                    console.log(err)
-                }
-            });
-            questionLoop()
-        })
-        })
+    let roleNum = 0
+    const [roleID,rField] = await db.promise().query(`SELECT id FROM role WHERE title = ?;`,[ans.role])
+    roleNum = roleID[0].id
+    const [employee,eField] = await db.promise().query(`INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES (?, ?, ?,?);`,[ans.firstName,ans.lastName,roleNum,ans.manager]) 
+    questionLoop()
 }
 //TODO: add functionality for updating an employee role
 function updateEmployee(){
     console.log('selected view update an employee role')
     questionLoop()
 }
-function viewRoles(){
-    db.query(`SELECT department.name AS department, role.title, role.salary
+async function viewRoles(){
+   const [titles,fields] = await db.promise().query(`SELECT department.name AS Department, role.title, role.salary
     FROM role 
     JOIN department 
-    ON role.department_id = department.id;;`, function (err, results) {
-    console.table(results);
+    ON role.department_id = department.id;`) 
+    console.table(titles);
     questionLoop()
-      });
+
 }
 // functionality to addRoles
-function addRole(){
+async function addRole(){
     let allDeps = []
-    db.query(`SELECT name FROM department;`, function (err, results) {
-       for (let i = 0; i < results.length; i++) {
-        const element = results[i];
+    const [rows,fields] = await db.promise().query(`SELECT name FROM department;`)
+       for (let i = 0; i < rows.length; i++) {
+        const element = rows[i];
         allDeps.push(element.name)
        }
-    })  
-    inquirer
-    .prompt([
+    const ans = await inquirer.prompt([
         {
           type: "input",
           message: "What is the name of the role?",
@@ -157,36 +143,14 @@ function addRole(){
           choices: allDeps
         },
     ])
-    .then((ans) => {
-        let depNum = 0
-        db.query(`SELECT id FROM department WHERE name = ?;`,[ans.dep], function (err, results){
-            depNum = results[0].id
-            db.query(`INSERT INTO role(title, salary,department_id) 
-                VALUES (?, ?,?);`,[ans.name,ans.salary,depNum], function (err, results) {
-                if (err){
-                    console.log(err)
-                }
-            });
-            questionLoop()
-        })
-        })
+   let depNum = 0
+   const [depID, dField] = await db.promise().query(`SELECT id FROM department WHERE name = ?;`,[ans.dep])
+   depNum = depID[0].id
+   const [role,rField] = await db.promise().query(`INSERT INTO role(title, salary,department_id) VALUES (?, ?,?);`,[ans.name,ans.salary,depNum])
+   questionLoop()
+    
 }
 async function viewDepartments(){
-    // db.query(`SELECT department.name AS Departments
-    // FROM department;`, function (err, results) {
-    // console.table(results);
-    // questionLoop()
-    //   });
-    // const db = await mysql.createConnection(
-    //     {
-    //       host: 'localhost',
-    //       user: 'root',
-    //       password: 'password',
-    //       database: 'workplace_db'
-    //     },
-    //     console.log(`Connected to the workplace_db database.`)
-    //   );
-    
     const [rows,fields] = await db.promise().query(`SELECT department.name AS Departments FROM department;`)
     console.table(fields)
     console.table(rows)
