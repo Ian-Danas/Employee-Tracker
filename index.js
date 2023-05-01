@@ -1,6 +1,6 @@
 //  Include packages needed for this application
 const inquirer = require("inquirer");
-const mysql = require('mysql2')
+const mysql = require('mysql2');
 const cTable = require('console.table')
 
 // Connect to database
@@ -50,6 +50,7 @@ function questionLoop() {
               break;
             default:
                 console.log('thanks for using the program!')
+                break
           }
       });
     }
@@ -170,12 +171,26 @@ function addRole(){
         })
         })
 }
-function viewDepartments(){
-    db.query(`SELECT department.name AS Departments
-    FROM department;`, function (err, results) {
-    console.table(results);
+async function viewDepartments(){
+    // db.query(`SELECT department.name AS Departments
+    // FROM department;`, function (err, results) {
+    // console.table(results);
+    // questionLoop()
+    //   });
+    // const db = await mysql.createConnection(
+    //     {
+    //       host: 'localhost',
+    //       user: 'root',
+    //       password: 'password',
+    //       database: 'workplace_db'
+    //     },
+    //     console.log(`Connected to the workplace_db database.`)
+    //   );
+    
+    const [rows,fields] = await db.promise().query(`SELECT department.name AS Departments FROM department;`)
+    console.table(fields)
+    console.table(rows)
     questionLoop()
-      });
 }
 function addDepartment(){
     inquirer
