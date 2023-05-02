@@ -71,7 +71,7 @@ async function viewEmployees() {
     FROM employee 
     JOIN role ON employee.role_id = role.id 
     JOIN department ON role.department_id = department.id 
-    JOIN employee m WHERE employee.manager_id = m.id;`);
+    LEFT JOIN employee m ON employee.manager_id = m.id;`);
   console.table(rows);
   questionLoop();
 }
