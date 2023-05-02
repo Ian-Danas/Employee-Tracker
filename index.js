@@ -65,14 +65,11 @@ function questionLoop() {
 
 async function viewEmployees() {
   const [rows, fields] = await db.promise()
-    .query(`SELECT employee.first_name, employee.last_name, employee.manager_id, role.title,role.salary,department.name AS Department
+    .query(`SELECT employee.first_name, employee.last_name, m.last_name AS manager, role.title,role.salary,department.name AS Department
     FROM employee 
-    JOIN role 
-    ON employee.role_id = role.id
-    JOIN department
-    ON role.department_id = department.id
-    JOIN employee
-    WHERE employee.manager_id = employee.id;`);
+    JOIN role ON employee.role_id = role.id 
+    JOIN department ON role.department_id = department.id 
+    JOIN employee m WHERE employee.manager_id = m.id;`);
   console.table(rows);
   questionLoop();
 }
@@ -83,6 +80,13 @@ async function addEmployees() {
   for (let i = 0; i < titles.length; i++) {
     const element = titles[i];
     allRoles.push(element.title);
+  }
+  let allEmploy = [];
+  const [rows, fields] = await db.promise().query(`SELECT employee.first_name,employee.last_name FROM employee;`)
+  for (let i = 0; i < rows.length; i++) {
+    const element = rows[i];
+    const employeeStr = element.first_name + " " + element.last_name;
+    allEmploy.push(employeeStr);
   }
   const ans = await inquirer.prompt([
     {
@@ -102,22 +106,22 @@ async function addEmployees() {
       choices: allRoles,
     },
     {
-      type: "input",
-      message: "What is the employees manager",
+      type: "list",
+      message: "Who is the employees manager",
       name: "manager",
+      choices:allEmploy
     },
   ]);
   let roleNum = 0;
-  const [roleID, rField] = await db
-    .promise()
-    .query(`SELECT id FROM role WHERE title = ?;`, [ans.role]);
+  const [roleID, rField] = await db.promise().query(`SELECT id FROM role WHERE title = ?;`, [ans.role]);
   roleNum = roleID[0].id;
-  const [employee, eField] = await db
-    .promise()
-    .query(
-      `INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES (?, ?, ?,?);`,
-      [ans.firstName, ans.lastName, roleNum, ans.manager]
-    );
+  let managerNum =0
+  nameArr = ans.manager.split(" ")
+  const firstName = nameArr[0]
+  const lastName = nameArr[1]
+  const [manId, mField] = await db.promise().query(`SELECT id FROM employee WHERE first_name = ? AND last_name = ?;`, [firstName,lastName]);
+  managerNum = manId[0].id
+  const [employee, eField] = await db.promise().query(`INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES (?, ?, ?,?);`,[ans.firstName, ans.lastName, roleNum, managerNum]);
   questionLoop();
 }
 //functionality for updating an employee role
@@ -216,7 +220,6 @@ async function viewDepartments() {
   const [rows, fields] = await db
     .promise()
     .query(`SELECT department.name AS Departments FROM department;`);
-  console.table(fields);
   console.table(rows);
   questionLoop();
 }

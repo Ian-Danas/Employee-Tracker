@@ -14,8 +14,8 @@ VALUES ('Head Marketer',85000,1),
        ('recruiter',50000,5);
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ('John', 'Lennon', 1,5),
-       ('Ringo', 'Star',2,4),
-       ('George','Harrison',3,3),
-       ('Paul', 'McCarthy',4,2),
-       ('Yoko','Ono',5,1);
+VALUES ('Michael', 'Scott', 1,null),
+       ('Dewight', 'Schrutte',2,1),
+       ('Jim','Halpert',3,1),
+       ('Pam', 'Beesley',4,1),
+       ('Kevin','Malone',5,1);
