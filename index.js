@@ -67,7 +67,7 @@ function questionLoop() {
 //TODO: fix query so that it returns all the employees and not just the ones that have managers
 async function viewEmployees() {
   const [rows, fields] = await db.promise()
-    .query(`SELECT employee.first_name AS "First Name", employee.last_name AS "Last Name", CONCAT(m.first_name,' ',m.last_name) AS Manager, role.title,role.salary AS SALARY,department.name AS Department
+    .query(`SELECT employee.first_name AS "First Name", employee.last_name AS "Last Name", CONCAT(m.first_name,' ',m.last_name) AS Manager, role.title,role.salary AS Salary,department.name AS Department
     FROM employee 
     JOIN role ON employee.role_id = role.id 
     JOIN department ON role.department_id = department.id 
@@ -90,6 +90,7 @@ async function addEmployees() {
     const employeeStr = element.first_name + " " + element.last_name;
     allEmploy.push(employeeStr);
   }
+  allEmploy.push('None')
   const ans = await inquirer.prompt([
     {
       type: "input",
@@ -117,12 +118,14 @@ async function addEmployees() {
   let roleNum = 0;
   const [roleID, rField] = await db.promise().query(`SELECT id FROM role WHERE title = ?;`, [ans.role]);
   roleNum = roleID[0].id;
-  let managerNum =0
-  nameArr = ans.manager.split(" ")
-  const firstName = nameArr[0]
-  const lastName = nameArr[1]
-  const [manId, mField] = await db.promise().query(`SELECT id FROM employee WHERE first_name = ? AND last_name = ?;`, [firstName,lastName]);
-  managerNum = manId[0].id
+  let managerNum = null
+  if (ans.manager != 'None'){
+    nameArr = ans.manager.split(" ")
+    const firstName = nameArr[0]
+    const lastName = nameArr[1]
+    const [manId, mField] = await db.promise().query(`SELECT id FROM employee WHERE first_name = ? AND last_name = ?;`, [firstName,lastName]);
+    managerNum = manId[0].id
+  }
   const [employee, eField] = await db.promise().query(`INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES (?, ?, ?,?);`,[ans.firstName, ans.lastName, roleNum, managerNum]);
   questionLoop();
 }
