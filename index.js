@@ -141,7 +141,6 @@ async function updateEmployee() {
   let allRoles = [];
   for (let i = 0; i < roles.length; i++) {
     const roleObj = roles[i];
-    console.log(roleObj)
     allRoles.push(roleObj.title);
   }
 

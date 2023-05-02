@@ -23,6 +23,7 @@ If running from the command line the user will first need to clone the the repos
 To use the application the user can select one of the choices presented. Once a choice has been made if the choice is to just view one of the tables then the table will be printed to the console. If the choice was to add a employee,role, or department some new questions will be asked. The user can enter the information with what they like and once done the information will be added to the database and can be viewed by selecting to view the tables again. The program will bring the user back to the main set of questions once they are done with the action. Once the user is done using the program they can select quit which will end the program.
  
 Link to deployed github repo:  https://ian-danas-note-taker.herokuapp.com
+Link to video demo: https://drive.google.com/file/d/1xKDOjr5cFLDmHCukEyC9VgO1t-x_W4sw/view
 ## Contributing <a id = "Contributing"></a>
 Ian Danas
 ## Tests <a id = "Tests"></a>
