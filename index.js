@@ -70,7 +70,9 @@ async function viewEmployees() {
     JOIN role 
     ON employee.role_id = role.id
     JOIN department
-    ON role.department_id = department.id;`);
+    ON role.department_id = department.id
+    JOIN employee
+    WHERE employee.manager_id = employee.id;`);
   console.table(rows);
   questionLoop();
 }
