@@ -14,6 +14,7 @@ const db = mysql.createConnection(
   console.log(`Connected to the workplace_db database.`)
 );
 
+//inquirer loop to continueously ask questions to call all functions below
 function questionLoop() {
   inquirer
     .prompt([
@@ -62,10 +63,11 @@ function questionLoop() {
       }
     });
 }
-
+//functionality to view all employees
+//TODO: fix query so that it returns all the employees and not just the ones that have managers
 async function viewEmployees() {
   const [rows, fields] = await db.promise()
-    .query(`SELECT employee.first_name, employee.last_name, m.last_name AS manager, role.title,role.salary,department.name AS Department
+    .query(`SELECT employee.first_name AS "First Name", employee.last_name AS "Last Name", CONCAT(m.first_name,' ',m.last_name) AS Manager, role.title,role.salary AS SALARY,department.name AS Department
     FROM employee 
     JOIN role ON employee.role_id = role.id 
     JOIN department ON role.department_id = department.id 
@@ -73,7 +75,7 @@ async function viewEmployees() {
   console.table(rows);
   questionLoop();
 }
-//TODO: add functionality for having manager names
+//functionality for having manager names
 async function addEmployees() {
   let allRoles = [];
   const [titles, Tfields] = await db.promise().query(`SELECT title FROM role;`);
@@ -176,7 +178,7 @@ async function viewRoles() {
   console.table(titles);
   questionLoop();
 }
-// functionality to addRoles
+//functionality to addRoles
 async function addRole() {
   let allDeps = [];
   const [rows, fields] = await db
@@ -216,6 +218,7 @@ async function addRole() {
     ]);
   questionLoop();
 }
+//functionality to view all departments
 async function viewDepartments() {
   const [rows, fields] = await db
     .promise()
@@ -223,6 +226,7 @@ async function viewDepartments() {
   console.table(rows);
   questionLoop();
 }
+//functionality add a department
 function addDepartment() {
   inquirer
     .prompt([
