@@ -24,11 +24,11 @@ function questionLoop() {
         name: "selection",
         choices: [
           "View All Employees",
+          "View All Roles",
+          "View All Departments",
           "Add Employee",
           "Update Employee Role",
-          "View All Roles",
           "Add Role",
-          "View All Departments",
           "Add Department",
           "Quit",
         ],
@@ -59,15 +59,14 @@ function questionLoop() {
           break;
         default:
           console.log("thanks for using the program!");
-          break;
+          process.exit(0)
       }
     });
 }
 //functionality to view all employees
-//TODO: fix query so that it returns all the employees and not just the ones that have managers
 async function viewEmployees() {
   const [rows, fields] = await db.promise()
-    .query(`SELECT employee.first_name AS "First Name", employee.last_name AS "Last Name", CONCAT(m.first_name,' ',m.last_name) AS Manager, role.title,role.salary AS Salary,department.name AS Department
+    .query(`SELECT employee.id AS id, employee.first_name AS "First Name", employee.last_name AS "Last Name", CONCAT(m.first_name,' ',m.last_name) AS Manager, role.title,role.salary AS Salary,department.name AS Department
     FROM employee 
     JOIN role ON employee.role_id = role.id 
     JOIN department ON role.department_id = department.id 
@@ -174,7 +173,7 @@ async function updateEmployee() {
 }
 async function viewRoles() {
   const [titles, fields] = await db.promise()
-    .query(`SELECT department.name AS Department, role.title, role.salary
+    .query(`SELECT role.id AS id, role.title, role.salary, department.name AS Department
     FROM role 
     JOIN department 
     ON role.department_id = department.id;`);
@@ -225,7 +224,7 @@ async function addRole() {
 async function viewDepartments() {
   const [rows, fields] = await db
     .promise()
-    .query(`SELECT department.name AS Departments FROM department;`);
+    .query(`SELECT department.id AS id,department.name AS Departments FROM department;`);
   console.table(rows);
   questionLoop();
 }
